@@ -23,9 +23,11 @@ Market Intelligence → Research OS → Alpha Factory → Decision Intelligence
 ```
 handbook/                 Authoritative specifications (source of truth)
 packages/
-  nexus-shared/           Shared kernel: event envelope, catalog, primitives (contracts only)
+  nexus-shared/           Domain kernel: event envelope, catalog, primitives (contracts only)
+  nexus-platform/         Technical kernel: async DB session, base repository, cache, migration runner
 services/
   event_fabric/           SPEC-005 — Research Event Fabric (communication backbone)
+  data_platform/          SPEC-006 — Data Platform (migrations, immutable artifacts, lineage, read models)
   ...                     One directory per bounded context (added incrementally)
 frontend/                 Next.js presentation layer (added later)
 infra/
@@ -66,9 +68,9 @@ pytest
 
 | Layer | Spec | Status |
 |-------|------|--------|
-| Research Event Fabric   | SPEC-005 | 🟢 In progress |
-| Data Platform           | SPEC-006 | ⚪ Planned |
-| Market Intelligence     | SPEC-004 | ⚪ Planned |
+| Research Event Fabric   | SPEC-005 | 🟢 Implemented (tested) |
+| Data Platform           | SPEC-006 | 🟢 Implemented (tested) |
+| Market Intelligence     | SPEC-004 | ⚪ Next |
 | Research OS             | SPEC-007 | ⚪ Planned |
 | Alpha Factory           | SPEC-008 | ⚪ Planned |
 | Validation Platform     | SPEC-009 | ⚪ Planned |

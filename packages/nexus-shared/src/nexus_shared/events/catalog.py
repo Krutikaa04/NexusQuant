@@ -48,6 +48,10 @@ class EventType(str, Enum):
     DATASET_CREATED = "research.DatasetCreated"
     DATASET_VERSION_CREATED = "research.DatasetVersionCreated"
 
+    # --- Data Platform (SPEC-006 §7) ---
+    DATASET_INDEXED = "research.DatasetIndexed"
+    READ_MODEL_UPDATED = "research.ReadModelUpdated"
+
     # --- Alpha (SPEC-008 / SPEC-014) ---
     FEATURE_VERSION_CREATED = "alpha.FeatureVersionCreated"
     MODEL_TRAINED = "alpha.ModelTrained"
