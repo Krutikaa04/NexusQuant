@@ -1,6 +1,6 @@
 
 # SPEC-014 — Machine Learning & Alpha Discovery
-**AegisOS | Version 3.0 | AI Implementation Contract**
+**NexusQuant | Version 3.0 | AI Implementation Contract**
 
 ## 1. Purpose
 

@@ -1,13 +1,13 @@
 # SPEC-001 — Product Vision & System Scope
 
-# AegisOS
+# NexusQuant
 ## Institutional Quantitative Research & Execution Platform for the Indian Equity Market
 
 **Version:** 2.0 (Vision Locked)
 
 ## Executive Summary
 
-AegisOS is **not** an algorithmic trading bot.
+NexusQuant is **not** an algorithmic trading bot.
 
 It is an institutional-grade Quantitative Research & Execution Platform where trading is the final outcome of a governed research process.
 
