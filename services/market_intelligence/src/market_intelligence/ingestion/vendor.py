@@ -56,6 +56,9 @@ class MockNseVendor(VendorAdapter):
             self._sequences[symbol] += 1
             ts = self._start_ts + self._interval * i
             spread = round(price * 0.0005, 2)
+            # Simulated feed latency: the collector "receives" the tick a few ms after
+            # the exchange stamped it, keeping drift measurement meaningful.
+            latency = timedelta(milliseconds=self._rng.randint(5, 80))
             yield RawTick(
                 symbol=symbol,
                 exchange=self._exchange,
@@ -66,4 +69,5 @@ class MockNseVendor(VendorAdapter):
                 exchange_ts=ts,
                 bid=round(price - spread, 2),
                 ask=round(price + spread, 2),
+                received_ts=ts + latency,
             )

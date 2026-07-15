@@ -28,6 +28,7 @@ packages/
 services/
   event_fabric/           SPEC-005 — Research Event Fabric (communication backbone)
   data_platform/          SPEC-006 — Data Platform (migrations, immutable artifacts, lineage, read models)
+  market_intelligence/    SPEC-004 — Market Intelligence (instruments, ingestion, quality, calendar, regime)
   ...                     One directory per bounded context (added incrementally)
 frontend/                 Next.js presentation layer (added later)
 infra/
@@ -70,7 +71,7 @@ pytest
 |-------|------|--------|
 | Research Event Fabric   | SPEC-005 | 🟢 Implemented (tested) |
 | Data Platform           | SPEC-006 | 🟢 Implemented (tested) |
-| Market Intelligence     | SPEC-004 | ⚪ Next |
+| Market Intelligence     | SPEC-004 | 🟢 Implemented (tested) |
 | Research OS             | SPEC-007 | ⚪ Planned |
 | Alpha Factory           | SPEC-008 | ⚪ Planned |
 | Validation Platform     | SPEC-009 | ⚪ Planned |

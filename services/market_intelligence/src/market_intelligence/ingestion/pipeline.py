@@ -73,7 +73,9 @@ class IngestionPipeline:
             market = MarketDataRepository(session)
             dq = DataQualityRepository(session)
             for raw in ticks:
-                received = utc_now()
+                # Arrival time comes from the collector when provided (replay/simulated
+                # feeds carry their own); a live tick without one is arriving now.
+                received = raw.received_ts or utc_now()
                 known = (raw.symbol, raw.exchange) in self._known
                 outcome = self._validator.validate(raw, symbol_known=known, received_ts=received)
                 snapshot, changed = self._quality.observe(raw.symbol, outcome)

@@ -56,8 +56,35 @@ class InstrumentUpdatedPayload(BaseModel):
     listing_status: str
 
 
+class MarketRegimeChangedPayload(BaseModel):
+    symbol: str
+    regimes: list[str]
+    indicators: dict = Field(default_factory=dict)
+
+
+class CorporateActionAppliedPayload(BaseModel):
+    symbol: str
+    exchange: str
+    action_type: str
+    ex_date: str
+    details: dict = Field(default_factory=dict)
+    adjustment_version: int
+
+
+class TradingSessionPayload(BaseModel):
+    exchange: str
+    at: datetime
+    phase: str
+
+
 def register_published_schemas() -> None:
     default_registry.register(EventType.TICK_RECEIVED, 1, TickReceivedPayload)
     default_registry.register(EventType.CANDLE_CLOSED, 1, CandleClosedPayload)
     default_registry.register(EventType.DATA_QUALITY_CHANGED, 1, DataQualityChangedPayload)
     default_registry.register(EventType.INSTRUMENT_UPDATED, 1, InstrumentUpdatedPayload)
+    default_registry.register(EventType.MARKET_REGIME_CHANGED, 1, MarketRegimeChangedPayload)
+    default_registry.register(
+        EventType.CORPORATE_ACTION_APPLIED, 1, CorporateActionAppliedPayload
+    )
+    default_registry.register(EventType.TRADING_SESSION_OPENED, 1, TradingSessionPayload)
+    default_registry.register(EventType.TRADING_SESSION_CLOSED, 1, TradingSessionPayload)

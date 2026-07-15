@@ -7,7 +7,7 @@ revision rather than mutating history.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlalchemy import (
     JSON,
@@ -49,7 +49,7 @@ class InstrumentRecord(Base):
     industry: Mapped[str | None] = mapped_column(String(128), nullable=True)
     currency: Mapped[str] = mapped_column(String(3), nullable=False, default="INR")
     listing_status: Mapped[str] = mapped_column(String(16), nullable=False, default="listed")
-    expiry: Mapped[datetime | None] = mapped_column(Date, nullable=True)
+    expiry: Mapped[date | None] = mapped_column(Date, nullable=True)
     strike: Mapped[float | None] = mapped_column(Float, nullable=True)
     option_type: Mapped[str | None] = mapped_column(String(2), nullable=True)
     revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
@@ -108,6 +108,64 @@ class CandleRecord(Base):
         UniqueConstraint("symbol", "interval_seconds", "open_time", name="uq_candle_bar"),
         Index("ix_candles_symbol_interval_time", "symbol", "interval_seconds", "open_time"),
     )
+
+
+class HolidayRecord(Base):
+    """An exchange trading holiday (SPEC-004 Trading Calendar)."""
+
+    __tablename__ = "trading_holidays"
+
+    day: Mapped[date] = mapped_column(Date, primary_key=True)
+    reason: Mapped[str] = mapped_column(String(256), nullable=False)
+
+
+class SpecialSessionRecord(Base):
+    """A non-regular trading window, e.g. Muhurat (SPEC-004 Trading Calendar)."""
+
+    __tablename__ = "special_sessions"
+
+    day: Mapped[date] = mapped_column(Date, primary_key=True)
+    kind: Mapped[str] = mapped_column(String(16), nullable=False)
+    open_time: Mapped[str] = mapped_column(String(5), nullable=False)  # "HH:MM" IST
+    close_time: Mapped[str] = mapped_column(String(5), nullable=False)
+    description: Mapped[str] = mapped_column(String(256), nullable=False)
+
+
+class CorporateActionRecord(Base):
+    """An immutable, versioned corporate action (SPEC-004 Corporate Actions Engine)."""
+
+    __tablename__ = "corporate_actions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    symbol: Mapped[str] = mapped_column(String(64), nullable=False)
+    exchange: Mapped[str] = mapped_column(String(8), nullable=False)
+    action_type: Mapped[str] = mapped_column(String(16), nullable=False)
+    ex_date: Mapped[date] = mapped_column(Date, nullable=False)
+    details: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    # Monotonic per-symbol adjustment version: research datasets pin against this.
+    adjustment_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint(
+            "symbol", "exchange", "action_type", "ex_date", name="uq_corp_action"
+        ),
+        Index("ix_corp_actions_symbol", "symbol", "ex_date"),
+    )
+
+
+class RegimeRecord(Base):
+    """An append-only market-regime snapshot (SPEC-004 Market Regime Engine)."""
+
+    __tablename__ = "market_regimes"
+
+    id: Mapped[int] = mapped_column(AutoBigInt, primary_key=True, autoincrement=True)
+    symbol: Mapped[str] = mapped_column(String(64), nullable=False)
+    regimes: Mapped[list] = mapped_column(JSON, nullable=False)
+    indicators: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    __table_args__ = (Index("ix_regimes_symbol_time", "symbol", "created_at"),)
 
 
 class DataQualityRecord(Base):

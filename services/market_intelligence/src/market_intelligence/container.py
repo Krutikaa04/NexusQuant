@@ -20,7 +20,13 @@ from market_intelligence.ingestion.validator import TickValidator
 from market_intelligence.migrations import MIGRATIONS
 from market_intelligence.services.instruments import InstrumentService
 from market_intelligence.services.queries import MarketQueryService
+from market_intelligence.services.reference import (
+    CalendarService,
+    CorporateActionService,
+    RegimeService,
+)
 from market_intelligence.services.replay import ReplayService
+from market_intelligence.ws.gateway import BroadcastPublisher, WebSocketGateway
 
 
 def _build_publisher(settings: Settings) -> EventPublisher:
@@ -34,10 +40,14 @@ class Container:
     settings: Settings
     database: Database
     publisher: EventPublisher
+    gateway: WebSocketGateway
     pipeline: IngestionPipeline
     instruments: InstrumentService
     replay: ReplayService
     queries: MarketQueryService
+    calendar: CalendarService
+    corporate_actions: CorporateActionService
+    regime: RegimeService
     applied_migrations: list[str] = field(default_factory=list)
 
     @classmethod
@@ -46,7 +56,9 @@ class Container:
     ) -> "Container":
         register_published_schemas()
         database = Database(settings.database_url, pool_size=settings.db_pool_size)
-        publisher = publisher or _build_publisher(settings)
+        gateway = WebSocketGateway()
+        # Every published event goes to the fabric (inner) and mirrors to local WS clients.
+        publisher = BroadcastPublisher(publisher or _build_publisher(settings), gateway)
         pipeline = IngestionPipeline(
             database,
             publisher,
@@ -62,14 +74,26 @@ class Container:
         instruments = InstrumentService(database, publisher, pipeline)
         replay = ReplayService(database, publisher)
         queries = MarketQueryService(database)
+        calendar = CalendarService(database, publisher)
+        corporate_actions = CorporateActionService(database, publisher)
+        regime = RegimeService(
+            database,
+            publisher,
+            calendar,
+            interval=Interval(settings.default_candle_interval_seconds),
+        )
         return cls(
             settings=settings,
             database=database,
             publisher=publisher,
+            gateway=gateway,
             pipeline=pipeline,
             instruments=instruments,
             replay=replay,
             queries=queries,
+            calendar=calendar,
+            corporate_actions=corporate_actions,
+            regime=regime,
         )
 
     async def startup(self) -> None:

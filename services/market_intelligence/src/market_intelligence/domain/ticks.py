@@ -8,7 +8,12 @@ from datetime import datetime
 
 @dataclass(frozen=True, slots=True)
 class RawTick:
-    """A tick as delivered by a vendor adapter, before validation/normalisation."""
+    """A tick as delivered by a vendor adapter, before validation/normalisation.
+
+    ``received_ts`` is stamped by the collector at arrival: it is a property of
+    *collection*, not processing, so replayed or simulated feeds carry their own arrival
+    times and drift measurement stays meaningful. ``None`` means "arriving now".
+    """
 
     symbol: str
     exchange: str
@@ -19,6 +24,7 @@ class RawTick:
     exchange_ts: datetime
     bid: float | None = None
     ask: float | None = None
+    received_ts: datetime | None = None
 
 
 @dataclass(frozen=True, slots=True)

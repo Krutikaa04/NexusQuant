@@ -13,10 +13,24 @@ async def _0001_create_market_schema(conn: AsyncConnection) -> None:
     await conn.run_sync(Base.metadata.create_all)
 
 
+async def _0002_calendar_corp_actions_regimes(conn: AsyncConnection) -> None:
+    """Create trading_holidays, special_sessions, corporate_actions, market_regimes.
+
+    ``create_all`` is idempotent per-table, so it only creates the tables added since
+    migration 0001.
+    """
+    await conn.run_sync(Base.metadata.create_all)
+
+
 MIGRATIONS: list[Migration] = [
     Migration(
         id="0001_create_market_schema",
         description="instruments, ticks, candles, data_quality",
         upgrade=_0001_create_market_schema,
+    ),
+    Migration(
+        id="0002_calendar_corp_actions_regimes",
+        description="trading_holidays, special_sessions, corporate_actions, market_regimes",
+        upgrade=_0002_calendar_corp_actions_regimes,
     ),
 ]
