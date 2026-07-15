@@ -37,3 +37,6 @@ Thumbs.db
 *.db
 data/
 logs/
+
+# Dev runtime
+.dev/

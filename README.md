@@ -48,21 +48,34 @@ The shared kernel holds **contracts and primitives only** — never business log
 | Packaging      | Per-service `pyproject.toml`, editable shared kernel |
 | Tests          | pytest + in-memory SQLite / fakeredis (no external services required) |
 
-## Development
+## Run the app (single command)
+
+A dev launcher starts the Python backend **and** the Next.js frontend together, seeds a
+demo NSE universe through the real SPEC-004 pipeline, and runs a gentle live feed:
 
 ```bash
-# 1. Start infrastructure (Postgres + Redis)
-docker compose -f infra/docker-compose.yml up -d
+# one-time: create the venv and install the Python packages (editable)
+python -m venv .venv && . .venv/Scripts/activate      # POSIX: source .venv/bin/activate
+pip install -e packages/nexus-shared -e packages/nexus-platform \
+            -e services/event_fabric -e services/data_platform -e services/market_intelligence
 
-# 2. Install a service and the shared kernel (editable)
-cd services/event_fabric
-pip install -e ../../packages/nexus-shared -e .[dev]
+# then, every time:
+python run.py
+```
 
-# 3. Run the service
-uvicorn event_fabric.main:app --reload --port 8005
+- **App**  → http://localhost:3000  (landing, dashboard, live Market Intelligence)
+- **API**  → http://localhost:8004  (OpenAPI docs at `/docs`)
 
-# 4. Tests (require no running infrastructure)
-pytest
+`run.py` installs the frontend's npm dependencies on first run. Requires Python 3.11+ and
+Node 18+. The frontend proxies `/api` and `/market` to the backend, so no CORS config is
+needed. The dashboard and charts poll live; the backend live feed updates prices every ~1.5s.
+
+## Working on a single service
+
+```bash
+docker compose -f infra/docker-compose.yml up -d          # optional: real Postgres + Redis
+uvicorn market_intelligence.main:app --reload --port 8004  # a bare service
+pytest                                                     # full suite, no infra required
 ```
 
 ## Implementation status
