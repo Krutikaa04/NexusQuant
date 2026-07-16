@@ -29,6 +29,7 @@ services/
   event_fabric/           SPEC-005 — Research Event Fabric (communication backbone)
   data_platform/          SPEC-006 — Data Platform (migrations, immutable artifacts, lineage, read models)
   market_intelligence/    SPEC-004 — Market Intelligence (instruments, ingestion, quality, calendar, regime)
+  research_os/            SPEC-007 — Research OS (projects, hypotheses, experiments, reviews, promotion)
   ...                     One directory per bounded context (added incrementally)
 frontend/                 Next.js presentation layer (added later)
 infra/
@@ -57,7 +58,8 @@ demo NSE universe through the real SPEC-004 pipeline, and runs a gentle live fee
 # one-time: create the venv and install the Python packages (editable)
 python -m venv .venv && . .venv/Scripts/activate      # POSIX: source .venv/bin/activate
 pip install -e packages/nexus-shared -e packages/nexus-platform \
-            -e services/event_fabric -e services/data_platform -e services/market_intelligence
+            -e services/event_fabric -e services/data_platform \
+            -e services/market_intelligence -e services/research_os
 
 # then, every time:
 python run.py
@@ -85,7 +87,7 @@ pytest                                                     # full suite, no infr
 | Research Event Fabric   | SPEC-005 | 🟢 Implemented (tested) |
 | Data Platform           | SPEC-006 | 🟢 Implemented (tested) |
 | Market Intelligence     | SPEC-004 | 🟢 Implemented (tested) |
-| Research OS             | SPEC-007 | ⚪ Planned |
+| Research OS             | SPEC-007 | 🟢 Implemented (tested) |
 | Alpha Factory           | SPEC-008 | ⚪ Planned |
 | Validation Platform     | SPEC-009 | ⚪ Planned |
 | Decision & Risk         | SPEC-010 | ⚪ Planned |

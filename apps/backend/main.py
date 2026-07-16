@@ -22,14 +22,19 @@ from market_intelligence.api.controller import router as market_router
 from market_intelligence.api.controller import ws_router
 from market_intelligence.config import Settings
 from market_intelligence.container import Container
+from research_os.api.controller import router as research_router
+from research_os.config import Settings as ResearchSettings
+from research_os.container import Container as ResearchContainer
 
 from overview import build_overview
 from seed import LiveFeed, seed, use_demo_regime_classifier
+from seed_research import seed_research
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("nexus.backend")
 
 DB_PATH = os.environ.get("NEXUS_DB_PATH", ".dev/market.db")
+RESEARCH_DB_PATH = os.environ.get("NEXUS_RESEARCH_DB_PATH", ".dev/research.db")
 LIVE_FEED = os.environ.get("NEXUS_LIVE_FEED", "1") == "1"
 
 # Modules the shell renders. Implemented ones link to real pages; the rest render a
@@ -37,7 +42,7 @@ LIVE_FEED = os.environ.get("NEXUS_LIVE_FEED", "1") == "1"
 MODULES = [
     {"key": "market", "name": "Market Intelligence", "spec": "SPEC-004", "status": "live",
      "summary": "Canonical market data, instrument master, data-quality scoring, regimes."},
-    {"key": "research", "name": "Research OS", "spec": "SPEC-007", "status": "coming_soon",
+    {"key": "research", "name": "Research OS", "spec": "SPEC-007", "status": "live",
      "summary": "Governed research lifecycle: projects, hypotheses, experiments, reviews."},
     {"key": "alpha", "name": "Alpha Factory", "spec": "SPEC-008", "status": "coming_soon",
      "summary": "Feature engineering, indicators, alpha generation and the feature store."},
@@ -60,6 +65,8 @@ PLATFORM_SERVICES = [
      "summary": "Migrations, immutable versioned artifacts, lineage, read models."},
     {"name": "Market Intelligence", "spec": "SPEC-004", "status": "implemented",
      "summary": "Instrument master, ingestion pipeline, quality, calendar, regime, replay."},
+    {"name": "Research OS", "spec": "SPEC-007", "status": "implemented",
+     "summary": "Governed lifecycle: projects, hypotheses, experiments, reviews, promotion."},
 ]
 
 
@@ -73,15 +80,26 @@ def create_app() -> FastAPI:
     use_demo_regime_classifier(container)
     live = LiveFeed(container)
 
+    research_container = ResearchContainer.build(
+        ResearchSettings(
+            RESEARCH_DATABASE_URL=f"sqlite+aiosqlite:///{RESEARCH_DB_PATH}",
+            auth_enabled=False,
+            environment="development",
+        )
+    )
+
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await container.startup()
         await seed(container)
+        await research_container.startup()
+        await seed_research(research_container)
         if LIVE_FEED:
             await live.start()
         yield
         if LIVE_FEED:
             await live.stop()
+        await research_container.shutdown()
         await container.shutdown()
 
     app = FastAPI(
@@ -97,6 +115,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.state.container = container
+    app.state.research_container = research_container
 
     @app.get("/api/health", tags=["backend"])
     async def health() -> dict:
@@ -114,6 +133,8 @@ def create_app() -> FastAPI:
     # corporate actions, regime, replay) and the /ws/{channel} streams.
     app.include_router(market_router)
     app.include_router(ws_router)
+    # The full SPEC-007 Research OS surface.
+    app.include_router(research_router)
     return app
 
 

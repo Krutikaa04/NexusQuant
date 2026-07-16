@@ -35,7 +35,7 @@ export const NAV: NavSection[] = [
     title: "Research Pipeline",
     items: [
       { href: "/market", label: "Market Intelligence", icon: IconMarket, status: "live", spec: "SPEC-004" },
-      { href: "/research", label: "Research OS", icon: IconResearch, status: "soon", spec: "SPEC-007" },
+      { href: "/research", label: "Research OS", icon: IconResearch, status: "live", spec: "SPEC-007" },
       { href: "/alpha", label: "Alpha Factory", icon: IconAlpha, status: "soon", spec: "SPEC-008" },
       { href: "/validation", label: "Validation", icon: IconValidation, status: "soon", spec: "SPEC-009" },
     ],

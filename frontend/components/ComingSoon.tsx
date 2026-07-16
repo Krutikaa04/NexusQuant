@@ -78,9 +78,10 @@ export function ComingSoon({ title, spec, tagline, description, capabilities, ic
             <div className="card-title" style={{ marginBottom: 14 }}>Dependency chain</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
-                { n: "Market Intelligence", done: true },
                 { n: "Research Event Fabric", done: true },
                 { n: "Data Platform", done: true },
+                { n: "Market Intelligence", done: true },
+                { n: "Research OS", done: true },
                 { n: title, done: false },
               ].map((s, i) => (
                 <div key={i} className="row gap-12">
