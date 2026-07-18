@@ -24,7 +24,7 @@ export function BrandLockup({ compact = false }: { compact?: boolean }) {
             Nexus<span style={{ color: "var(--accent)" }}>Quant</span>
           </div>
           <div className="dim" style={{ fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase" }}>
-            Quant Research OS
+            Autonomous Trading OS
           </div>
         </div>
       )}

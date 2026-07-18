@@ -1,11 +1,12 @@
 # NexusQuant
 
-**Institutional Quantitative Research & Execution Platform for the Indian Equity Market.**
+**Institutional-grade Autonomous Algorithmic Trading Operating System for the Indian Equity Market.**
 
-NexusQuant is not an algorithmic trading bot. It is a governed research platform where
-**research is the product** and every production trade originates from a validated research
-workflow. See [`handbook/`](handbook/) for the authoritative engineering specifications
-(SPEC-001 … SPEC-015).
+NexusQuant is a production-oriented autonomous trading platform. The **Strategy is the central
+entity** — the platform autonomously determines which strategies are eligible, which market regime
+is active, which strategies receive capital, which are paused, and when a strategy should be
+retired or requires human approval. Every order is governed, explainable, and reproducible.
+See [`handbook/`](handbook/) for the authoritative engineering specifications (SPEC-001 … SPEC-015).
 
 ## Architecture
 
@@ -14,8 +15,8 @@ Contexts communicate *only* through versioned domain events, public REST APIs, a
 streams — never through shared database writes.
 
 ```
-Market Intelligence → Research OS → Alpha Factory → Decision Intelligence
-   → Portfolio & Risk → Execution → Governance & Observability
+Market Data → Strategy Core → Portfolio → Risk → Orders → Execution
+   → Analytics · AI Copilot · Governance & Observability (cross-cutting)
 ```
 
 ### Repository layout
@@ -26,11 +27,11 @@ packages/
   nexus-shared/           Domain kernel: event envelope, catalog, primitives (contracts only)
   nexus-platform/         Technical kernel: async DB session, base repository, cache, migration runner
 services/
-  event_fabric/           SPEC-005 — Research Event Fabric (communication backbone)
+  event_fabric/           SPEC-005 — Event Fabric (communication backbone)
   data_platform/          SPEC-006 — Data Platform (migrations, immutable artifacts, lineage, read models)
-  market_intelligence/    SPEC-004 — Market Intelligence (instruments, ingestion, quality, calendar, regime)
-  research_os/            SPEC-007 — Research OS (projects, hypotheses, experiments, reviews, promotion)
-  ...                     One directory per bounded context (added incrementally)
+  market_intelligence/    SPEC-004 — Market Data (provider abstraction, ingestion, validation, quality, regime)
+  strategy_core/          SPEC-008 — Strategy Core (central entity: lifecycle, versioned config, health, audit)
+  ...                     Downstream trading contexts (portfolio, orders, execution, risk — added incrementally)
 frontend/                 Next.js presentation layer (added later)
 infra/
   docker-compose.yml      Local Postgres + Redis
@@ -59,7 +60,7 @@ demo NSE universe through the real SPEC-004 pipeline, and runs a gentle live fee
 python -m venv .venv && . .venv/Scripts/activate      # POSIX: source .venv/bin/activate
 pip install -e packages/nexus-shared -e packages/nexus-platform \
             -e services/event_fabric -e services/data_platform \
-            -e services/market_intelligence -e services/research_os
+            -e services/market_intelligence -e services/strategy_core
 
 # then, every time:
 python run.py
@@ -82,17 +83,16 @@ pytest                                                     # full suite, no infr
 
 ## Implementation status
 
-| Layer | Spec | Status |
+| Module | Spec | Status |
 |-------|------|--------|
-| Research Event Fabric   | SPEC-005 | 🟢 Implemented (tested) |
+| Event Fabric            | SPEC-005 | 🟢 Implemented (tested) |
 | Data Platform           | SPEC-006 | 🟢 Implemented (tested) |
-| Market Intelligence     | SPEC-004 | 🟢 Implemented (tested) |
-| Research OS             | SPEC-007 | 🟢 Implemented (tested) |
-| Alpha Factory           | SPEC-008 | ⚪ Planned |
-| Validation Platform     | SPEC-009 | ⚪ Planned |
-| Decision & Risk         | SPEC-010 | ⚪ Planned |
-| Portfolio Intelligence  | SPEC-011 | ⚪ Planned |
-| AI Quant Copilot        | SPEC-012 | ⚪ Planned |
-| Execution & OMS         | SPEC-013 | ⚪ Planned |
-| ML & Alpha Discovery    | SPEC-014 | ⚪ Planned |
+| Market Data             | SPEC-004 | 🟢 Implemented (tested) |
+| Strategy Core           | SPEC-008 | 🟢 Implemented (tested, central entity) |
+| Portfolio               | SPEC-011 | ⚪ Planned |
+| Orders                  | SPEC-013 | ⚪ Planned |
+| Execution               | SPEC-013 | ⚪ Planned |
+| Risk                    | SPEC-010 | ⚪ Planned |
+| Analytics               | SPEC-009 | ⚪ Planned |
+| AI Copilot              | SPEC-012 | ⚪ Planned |
 | Governance & Observability | SPEC-015 | ⚪ Planned |

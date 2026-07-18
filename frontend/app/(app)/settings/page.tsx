@@ -6,9 +6,9 @@ const SECTIONS = [
   {
     title: "Profile",
     rows: [
-      { k: "Name", v: "Research Analyst" },
-      { k: "Role", v: "Quantitative Researcher" },
-      { k: "Workspace", v: "Alpha Desk" },
+      { k: "Name", v: "Portfolio Manager" },
+      { k: "Role", v: "Head of Systematic Trading" },
+      { k: "Workspace", v: "Trading Desk" },
     ],
   },
   {

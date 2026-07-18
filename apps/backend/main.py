@@ -22,51 +22,53 @@ from market_intelligence.api.controller import router as market_router
 from market_intelligence.api.controller import ws_router
 from market_intelligence.config import Settings
 from market_intelligence.container import Container
-from research_os.api.controller import router as research_router
-from research_os.config import Settings as ResearchSettings
-from research_os.container import Container as ResearchContainer
+from strategy_core.api.controller import router as strategy_router
+from strategy_core.config import Settings as StrategySettings
+from strategy_core.container import Container as StrategyContainer
 
 from overview import build_overview
 from seed import LiveFeed, seed, use_demo_regime_classifier
-from seed_research import seed_research
+from seed_strategies import seed_strategies
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("nexus.backend")
 
 DB_PATH = os.environ.get("NEXUS_DB_PATH", ".dev/market.db")
-RESEARCH_DB_PATH = os.environ.get("NEXUS_RESEARCH_DB_PATH", ".dev/research.db")
+STRATEGY_DB_PATH = os.environ.get("NEXUS_STRATEGY_DB_PATH", ".dev/strategy.db")
 LIVE_FEED = os.environ.get("NEXUS_LIVE_FEED", "1") == "1"
 
-# Modules the shell renders. Implemented ones link to real pages; the rest render a
-# professional "Coming soon" page. Kept in sync with the handbook dev-order.
+# Trading modules the shell renders. The central entity is the Strategy; every other
+# module (portfolio, orders, execution, risk, analytics) operates on strategies and the
+# capital allocated to them. Implemented modules link to real pages; the rest render a
+# professional "Coming soon" page while their bounded contexts are built.
 MODULES = [
-    {"key": "market", "name": "Market Intelligence", "spec": "SPEC-004", "status": "live",
-     "summary": "Canonical market data, instrument master, data-quality scoring, regimes."},
-    {"key": "research", "name": "Research OS", "spec": "SPEC-007", "status": "live",
-     "summary": "Governed research lifecycle: projects, hypotheses, experiments, reviews."},
-    {"key": "alpha", "name": "Alpha Factory", "spec": "SPEC-008", "status": "coming_soon",
-     "summary": "Feature engineering, indicators, alpha generation and the feature store."},
-    {"key": "validation", "name": "Validation Platform", "spec": "SPEC-009", "status": "coming_soon",
-     "summary": "Backtesting, walk-forward and Monte-Carlo statistical validation."},
-    {"key": "decision", "name": "Decision Engine", "spec": "SPEC-010", "status": "coming_soon",
-     "summary": "Confidence scoring, ensemble voting and risk-aware recommendations."},
-    {"key": "portfolio", "name": "Portfolio Intelligence", "spec": "SPEC-011", "status": "coming_soon",
-     "summary": "Portfolio construction, exposure, position sizing and risk controls."},
-    {"key": "execution", "name": "Execution & OMS", "spec": "SPEC-013", "status": "coming_soon",
-     "summary": "Order management, broker abstraction, paper and live execution analytics."},
-    {"key": "copilot", "name": "AI Quant Copilot", "spec": "SPEC-012", "status": "coming_soon",
-     "summary": "Research assistant, strategy review, explainability and report generation."},
+    {"key": "market", "name": "Markets", "spec": "SPEC-004", "status": "live",
+     "summary": "Validated, normalized market data: instrument master, quality scoring, regimes."},
+    {"key": "strategies", "name": "Strategies", "spec": "SPEC-008", "status": "live",
+     "summary": "The central entity: entry/exit logic, risk rules, versioning, health and allocation."},
+    {"key": "portfolio", "name": "Portfolio", "spec": "SPEC-011", "status": "coming_soon",
+     "summary": "Positions, exposure, capital allocation across eligible strategies."},
+    {"key": "orders", "name": "Orders", "spec": "SPEC-013", "status": "coming_soon",
+     "summary": "Order lifecycle, routing and broker abstraction under governance."},
+    {"key": "execution", "name": "Execution", "spec": "SPEC-013", "status": "coming_soon",
+     "summary": "Paper and live execution, fills, slippage and reconciliation."},
+    {"key": "risk", "name": "Risk", "spec": "SPEC-010", "status": "coming_soon",
+     "summary": "Pre-trade limits, drawdown control, strategy pausing and approval gates."},
+    {"key": "analytics", "name": "Analytics", "spec": "SPEC-009", "status": "coming_soon",
+     "summary": "Backtesting, walk-forward, attribution and strategy performance analytics."},
+    {"key": "copilot", "name": "AI Copilot", "spec": "SPEC-012", "status": "coming_soon",
+     "summary": "Strategy review, explainability and autonomous-decision narration."},
 ]
 
 PLATFORM_SERVICES = [
-    {"name": "Research Event Fabric", "spec": "SPEC-005", "status": "implemented",
+    {"name": "Event Fabric", "spec": "SPEC-005", "status": "implemented",
      "summary": "Versioned event backbone: publish, persist, route, replay."},
     {"name": "Data Platform", "spec": "SPEC-006", "status": "implemented",
      "summary": "Migrations, immutable versioned artifacts, lineage, read models."},
-    {"name": "Market Intelligence", "spec": "SPEC-004", "status": "implemented",
-     "summary": "Instrument master, ingestion pipeline, quality, calendar, regime, replay."},
-    {"name": "Research OS", "spec": "SPEC-007", "status": "implemented",
-     "summary": "Governed lifecycle: projects, hypotheses, experiments, reviews, promotion."},
+    {"name": "Market Data", "spec": "SPEC-004", "status": "implemented",
+     "summary": "Provider abstraction, validation, normalization, quality, calendar, regime, replay."},
+    {"name": "Strategy Core", "spec": "SPEC-008", "status": "implemented",
+     "summary": "Central entity: lifecycle, versioned configuration, health, audit trail."},
 ]
 
 
@@ -80,9 +82,9 @@ def create_app() -> FastAPI:
     use_demo_regime_classifier(container)
     live = LiveFeed(container)
 
-    research_container = ResearchContainer.build(
-        ResearchSettings(
-            RESEARCH_DATABASE_URL=f"sqlite+aiosqlite:///{RESEARCH_DB_PATH}",
+    strategy_container = StrategyContainer.build(
+        StrategySettings(
+            STRATEGY_DATABASE_URL=f"sqlite+aiosqlite:///{STRATEGY_DB_PATH}",
             auth_enabled=False,
             environment="development",
         )
@@ -92,14 +94,14 @@ def create_app() -> FastAPI:
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await container.startup()
         await seed(container)
-        await research_container.startup()
-        await seed_research(research_container)
+        await strategy_container.startup()
+        await seed_strategies(strategy_container)
         if LIVE_FEED:
             await live.start()
         yield
         if LIVE_FEED:
             await live.stop()
-        await research_container.shutdown()
+        await strategy_container.shutdown()
         await container.shutdown()
 
     app = FastAPI(
@@ -115,7 +117,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.state.container = container
-    app.state.research_container = research_container
+    app.state.strategy_container = strategy_container
 
     @app.get("/api/health", tags=["backend"])
     async def health() -> dict:
@@ -133,8 +135,8 @@ def create_app() -> FastAPI:
     # corporate actions, regime, replay) and the /ws/{channel} streams.
     app.include_router(market_router)
     app.include_router(ws_router)
-    # The full SPEC-007 Research OS surface.
-    app.include_router(research_router)
+    # The full Strategy Core surface (lifecycle, configuration, versioning, health, audit).
+    app.include_router(strategy_router)
     return app
 
 

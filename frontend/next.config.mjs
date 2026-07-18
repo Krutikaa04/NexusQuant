@@ -9,7 +9,7 @@ const nextConfig = {
     return [
       { source: "/api/:path*", destination: `${BACKEND}/api/:path*` },
       { source: "/market/:path*", destination: `${BACKEND}/market/:path*` },
-      { source: "/api-research/:path*", destination: `${BACKEND}/research/:path*` },
+      { source: "/api-strategies/:path*", destination: `${BACKEND}/strategies/:path*` },
     ];
   },
 };

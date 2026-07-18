@@ -61,7 +61,7 @@ export function Topbar() {
         <span style={{ position: "absolute", left: 11, top: 9, color: "var(--text-dim)" }}><IconSearch width={16} height={16} /></span>
         <input
           ref={searchRef}
-          placeholder="Search instruments, research, docs…"
+          placeholder="Search strategies, instruments, orders…"
           style={{
             width: "100%",
             background: "var(--bg-2)",
@@ -96,11 +96,11 @@ export function Topbar() {
         style={{ padding: "7px 10px", position: "relative" }}
       >
         <span style={{ width: 8, height: 8, borderRadius: 2, background: "linear-gradient(135deg,var(--accent),var(--accent-2))" }} />
-        Alpha Desk
+        Trading Desk
         <IconChevron width={15} height={15} />
         {wsOpen && (
           <div className="panel fade-in" style={{ position: "absolute", top: 44, right: 0, width: 210, padding: 6, zIndex: 30 }}>
-            {["Alpha Desk", "Macro Research", "Risk & Portfolio"].map((w, i) => (
+            {["Trading Desk", "Systematic Alpha", "Risk & Portfolio"].map((w, i) => (
               <div key={w} className="ws-opt" style={{ padding: "9px 10px", borderRadius: 7, fontSize: 13, color: i === 0 ? "var(--text)" : "var(--text-muted)", cursor: "pointer" }}>
                 {w}{i === 0 && <span className="pill pill-info" style={{ float: "right", padding: "0 7px" }}>Active</span>}
               </div>

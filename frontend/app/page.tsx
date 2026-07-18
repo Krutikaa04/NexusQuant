@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { BrandLockup } from "@/components/Brand";
-import { IconArrowRight, IconMarket, IconPulse, IconResearch, IconShield } from "@/components/icons";
+import { IconArrowRight, IconMarket, IconPulse, IconShield, IconStrategy } from "@/components/icons";
 
 const PILLARS = [
-  { icon: <IconResearch />, title: "Research is the product", body: "Every production trade originates from a governed, reviewed research workflow — not a black box." },
-  { icon: <IconShield />, title: "Explainable & auditable", body: "Every decision is explainable, every artifact versioned, every action captured in an immutable audit trail." },
-  { icon: <IconPulse />, title: "Deterministic & reproducible", body: "Immutable market data and event-sourced pipelines mean any result can be replayed exactly." },
+  { icon: <IconStrategy />, title: "The strategy is the product", body: "Every workflow begins with a strategy. The platform decides autonomously which strategies are eligible, funded, paused, or retired — under governance." },
+  { icon: <IconShield />, title: "Governed autonomy", body: "No order reaches a broker without passing risk. Every allocation, pause, and retirement is explainable and captured in an immutable audit trail." },
+  { icon: <IconPulse />, title: "Deterministic & reproducible", body: "Validated market data and event-sourced pipelines mean any decision — or backtest — can be replayed exactly." },
 ];
 
-const LAYERS = [
-  "Market Intelligence", "Research OS", "Alpha Factory", "Validation",
-  "Decision Engine", "Portfolio", "Execution & OMS", "AI Copilot",
+const MODULES = [
+  "Markets", "Strategies", "Portfolio", "Orders",
+  "Execution", "Risk", "Analytics", "AI Copilot",
 ];
 
 export default function Landing() {
@@ -33,21 +33,22 @@ export default function Landing() {
           <span className="dot" />Indian Equity Markets · Institutional Grade
         </div>
         <h1 className="fade-up" style={{ fontSize: 56, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 800, animationDelay: "40ms", maxWidth: 820, margin: "0 auto" }}>
-          The quantitative research platform,{" "}
+          The autonomous trading platform,{" "}
           <span style={{ background: "linear-gradient(120deg,var(--accent),var(--accent-2))", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
             engineered like an institution.
           </span>
         </h1>
         <p className="muted fade-up" style={{ fontSize: 18, lineHeight: 1.6, maxWidth: 640, margin: "24px auto 0", animationDelay: "90ms" }}>
-          NexusQuant is not a trading bot. It is a governed research operating system where every
-          strategy is validated, explainable, and reproducible before a single order is placed.
+          NexusQuant is an institutional-grade autonomous algorithmic trading operating system.
+          Strategies are the central entity — the platform decides which to fund, pause, or retire,
+          and every order is governed, explainable, and reproducible before it reaches the market.
         </p>
         <div className="row fade-up" style={{ justifyContent: "center", gap: 12, marginTop: 36, animationDelay: "140ms" }}>
           <Link href="/dashboard" className="btn btn-primary" style={{ padding: "12px 22px", fontSize: 14.5 }}>
             Open the Dashboard <IconArrowRight width={17} height={17} />
           </Link>
           <Link href="/market" className="btn" style={{ padding: "12px 22px", fontSize: 14.5 }}>
-            <IconMarket width={17} height={17} /> Explore Market Intelligence
+            <IconMarket width={17} height={17} /> Explore Markets
           </Link>
         </div>
       </section>
@@ -72,13 +73,13 @@ export default function Landing() {
         <div className="panel panel-pad fade-up">
           <div className="row between" style={{ marginBottom: 18, flexWrap: "wrap", gap: 8 }}>
             <div>
-              <div className="card-title">Eight-layer architecture</div>
-              <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>Bounded contexts, event-driven, one governed pipeline from idea to execution.</div>
+              <div className="card-title">Strategy-centric architecture</div>
+              <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>Bounded contexts, event-driven, one governed path from strategy to execution.</div>
             </div>
-            <span className="pill pill-up"><span className="dot" />3 layers live</span>
+            <span className="pill pill-up"><span className="dot" />Markets live</span>
           </div>
           <div className="row" style={{ flexWrap: "wrap", gap: 10 }}>
-            {LAYERS.map((l, i) => (
+            {MODULES.map((l, i) => (
               <div key={l} className="row gap-8" style={{ fontSize: 13, padding: "8px 12px", borderRadius: 8, border: "1px solid var(--border)", background: i < 1 ? "var(--accent-soft)" : "var(--bg-2)", color: i < 1 ? "var(--accent)" : "var(--text-muted)" }}>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, opacity: 0.7 }}>{String(i + 1).padStart(2, "0")}</span>
                 {l}
@@ -87,7 +88,7 @@ export default function Landing() {
           </div>
         </div>
         <div className="dim" style={{ textAlign: "center", marginTop: 40, fontSize: 12.5 }}>
-          © {new Date().getFullYear()} NexusQuant · Built for quantitative researchers, traders, and portfolio managers.
+          © {new Date().getFullYear()} NexusQuant · Built for systematic traders, portfolio managers, and quant desks.
         </div>
       </section>
     </div>

@@ -24,6 +24,35 @@ class VendorAdapter(ABC):
     def stream(self, count: int) -> Iterator[RawTick]: ...
 
 
+class FailoverVendorAdapter(VendorAdapter):
+    """Ordered composite of providers: the first adapter that streams without raising wins.
+
+    This is the provider-failover *interface* for the autonomous-trading vision — downstream
+    ingestion depends only on :class:`VendorAdapter`, so multiple real providers can be layered
+    in priority order without any change to the pipeline. Each provider is tried in turn; if one
+    raises before yielding, the next is attempted. Providers that fail *mid-stream* are not
+    silently resumed — partial data must never be normalized as complete — the error propagates so
+    the quality engine and health monitor can react. Wire real ordering/backoff when a second
+    provider ships.
+    """
+
+    def __init__(self, providers: list[VendorAdapter]) -> None:
+        if not providers:
+            raise ValueError("FailoverVendorAdapter requires at least one provider")
+        self._providers = list(providers)
+
+    def stream(self, count: int) -> Iterator[RawTick]:
+        last_error: Exception | None = None
+        for provider in self._providers:
+            try:
+                yield from provider.stream(count)
+                return
+            except Exception as exc:  # try the next provider on cold-start failure
+                last_error = exc
+                continue
+        raise RuntimeError("all market-data providers failed") from last_error
+
+
 class MockNseVendor(VendorAdapter):
     def __init__(
         self,
