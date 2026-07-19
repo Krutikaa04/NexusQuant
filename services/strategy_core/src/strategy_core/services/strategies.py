@@ -29,6 +29,7 @@ from strategy_core.domain.lifecycle import (
     allowed_transitions,
     can_transition,
     is_editable,
+    is_execution_ready,
     is_terminal,
 )
 from strategy_core.domain.models import StrategyConfig
@@ -194,6 +195,13 @@ class StrategyService:
             )
         return await self.get_detail(strategy_id)
 
+    async def archive(self, strategy_id: str, *, reason: str = "", actor: str = "unknown") -> dict:
+        """Archive a strategy — a lifecycle transition to the terminal ARCHIVED state."""
+        return await self.transition(
+            strategy_id, to_status=StrategyStatus.ARCHIVED.value,
+            reason=reason or "Archived", actor=actor,
+        )
+
     async def rollback(
         self, strategy_id: str, *, to_version: int, actor: str = "unknown"
     ) -> dict:
@@ -342,6 +350,7 @@ class StrategyService:
                     ],
                     "is_terminal": is_terminal(StrategyStatus(record.status)),
                     "is_editable": is_editable(StrategyStatus(record.status)),
+                    "execution_ready": is_execution_ready(StrategyStatus(record.status)),
                     "version_count": len(version_rows),
                     "versions": [_version_dict(v) for v in version_rows],
                 }
@@ -406,12 +415,16 @@ class StrategyDashboardService:
                 enabled += int(h.enabled)
 
             avg_health = round(sum(scores) / len(scores), 4) if scores else None
+            archived = by_status.get(StrategyStatus.ARCHIVED.value, 0)
             return {
                 "total": len(all_rows),
                 "by_status": by_status,
-                "active": by_status.get(StrategyStatus.LIVE.value, 0),
+                # "Active" = every non-archived strategy the trader is still working with.
+                "active": len(all_rows) - archived,
+                "ready": by_status.get(StrategyStatus.READY.value, 0),
                 "draft": by_status.get(StrategyStatus.DRAFT.value, 0),
                 "paused": by_status.get(StrategyStatus.PAUSED.value, 0),
+                "archived": archived,
                 "health": {
                     "avg_score": avg_health,
                     "scored": len(scores),
@@ -486,6 +499,7 @@ def _summary_dict(r: StrategyRecord, h: StrategyHealthRecord | None) -> dict:
         "status": r.status,
         "tags": list(r.tags or []),
         "version": r.current_version,
+        "execution_ready": is_execution_ready(StrategyStatus(r.status)),
         "created_at": _iso(r.created_at),
         "updated_at": _iso(r.updated_at),
         "health": _health_dict(h),

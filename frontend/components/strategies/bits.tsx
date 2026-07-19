@@ -28,12 +28,12 @@ export function Tag({ children }: { children: ReactNode }) {
 
 /** Horizontal lifecycle timeline. Highlights states up to and including the current one. */
 export function LifecycleTimeline({ status }: { status: string }) {
-  const retired = status === "retired";
+  const archived = status === "archived";
   const currentIdx = LIFECYCLE.indexOf(status);
   return (
     <div className="row" style={{ flexWrap: "wrap", gap: 0, alignItems: "stretch" }}>
       {LIFECYCLE.map((s, i) => {
-        const done = i < currentIdx || (retired && s === "retired");
+        const done = i < currentIdx || (archived && s === "archived");
         const active = s === status;
         const reached = i <= currentIdx;
         return (

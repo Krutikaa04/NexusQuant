@@ -62,8 +62,15 @@ async def test_transition_and_illegal(client):
     ok = await client.post(f"/strategies/{sid}/transition", json={"to_status": "configured"})
     assert ok.status_code == 200
     assert ok.json()["status"] == "configured"
-    bad = await client.post(f"/strategies/{sid}/transition", json={"to_status": "live"})
+    bad = await client.post(f"/strategies/{sid}/transition", json={"to_status": "ready"})
     assert bad.status_code == 409
+
+
+async def test_archive_endpoint(client):
+    sid = (await client.post("/strategies", json=_payload())).json()["id"]
+    r = await client.post(f"/strategies/{sid}/archive")
+    assert r.status_code == 200
+    assert r.json()["status"] == "archived"
 
 
 async def test_update_versions_and_rollback(client):

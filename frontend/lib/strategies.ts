@@ -33,6 +33,7 @@ export interface StrategySummary {
   status: string;
   tags: string[];
   version: number;
+  execution_ready: boolean;
   created_at: string | null;
   updated_at: string | null;
   health: StrategyHealth | null;
@@ -68,6 +69,7 @@ export interface StrategyDetail extends StrategySummary {
   available_transitions: string[];
   is_terminal: boolean;
   is_editable: boolean;
+  execution_ready: boolean;
   version_count: number;
   versions: StrategyVersion[];
 }
@@ -76,31 +78,44 @@ export interface DashboardSummary {
   total: number;
   by_status: Record<string, number>;
   active: number;
+  ready: number;
   draft: number;
   paused: number;
+  archived: number;
   health: { avg_score: number | null; scored: number; trading_allowed: number; enabled: number };
   recent: StrategySummary[];
 }
 
 // Lifecycle ordering (for the timeline) and presentation tones.
 export const LIFECYCLE: string[] = [
-  "draft", "configured", "validated", "paper_trading",
-  "ready_for_live", "live", "paused", "retired",
+  "draft", "configured", "validated", "ready", "paused", "archived",
 ];
 
 const STATUS_TONE: Record<string, string> = {
   draft: "pill",
   configured: "pill-info",
   validated: "pill-info",
-  paper_trading: "pill-warn",
-  ready_for_live: "pill-info",
-  live: "pill-up",
+  ready: "pill-up",
   paused: "pill-warn",
-  retired: "pill-down",
+  archived: "pill-down",
 };
 
 export function statusTone(status: string): string {
   return STATUS_TONE[status] ?? "pill";
+}
+
+/** Execution-readiness label + tone derived from lifecycle status. */
+export function readiness(status: string): { label: string; tone: string } {
+  switch (status) {
+    case "ready":
+      return { label: "Ready", tone: "pill-up" };
+    case "paused":
+      return { label: "Paused", tone: "pill-warn" };
+    case "archived":
+      return { label: "Archived", tone: "pill-down" };
+    default:
+      return { label: "Not ready", tone: "pill" };
+  }
 }
 
 export function healthTone(score: number | null | undefined): "up" | "down" | "neutral" {
@@ -146,6 +161,7 @@ export const StrategyApi = {
     send<StrategyDetail>("PATCH", `/${id}`, body),
   transition: (id: string, to_status: string, reason = "") =>
     send<StrategyDetail>("POST", `/${id}/transition`, { to_status, reason }),
+  archive: (id: string) => send<StrategyDetail>("POST", `/${id}/archive`),
   rollback: (id: string, version: number) =>
     send<StrategyDetail>("POST", `/${id}/rollback`, { version }),
   clone: (id: string, name: string) =>

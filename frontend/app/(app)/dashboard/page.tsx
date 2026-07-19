@@ -18,10 +18,10 @@ export default function DashboardPage() {
     <div>
       <PageHeader
         title="Command Center"
-        subtitle="Live market intelligence across the tracked NSE universe."
+        subtitle="Market intelligence across the tracked NSE universe."
         badge={
-          <span className="pill pill-up">
-            <span className="live-dot" />Live
+          <span className="pill pill-warn" title="Development feed: deterministic simulated prices, not live NSE quotes.">
+            <span className="live-dot" />Simulated feed
           </span>
         }
         actions={

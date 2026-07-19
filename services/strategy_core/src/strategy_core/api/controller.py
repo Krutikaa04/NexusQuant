@@ -138,6 +138,16 @@ async def transition_strategy(
         )
 
 
+@router.post("/{strategy_id}/archive")
+async def archive_strategy(
+    strategy_id: str,
+    container: Container = Depends(get_container),
+    principal: Principal = Depends(require_principal),
+) -> dict:
+    with _translate():
+        return await container.strategies.archive(strategy_id, actor=principal.subject)
+
+
 @router.post("/{strategy_id}/rollback")
 async def rollback_strategy(
     strategy_id: str,

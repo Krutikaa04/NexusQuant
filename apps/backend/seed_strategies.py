@@ -28,7 +28,7 @@ _DEMO: list[dict] = [
             position_sizing={"model": "fixed_qty", "qty": 25},
             trading_session={"start": "09:20", "end": "15:15"},
         ),
-        "path": ["configured", "validated", "paper_trading"],
+        "path": ["configured", "validated"],
     },
     {
         "name": "Bank Momentum Breakout",
@@ -42,7 +42,7 @@ _DEMO: list[dict] = [
             position_sizing={"model": "risk_pct", "risk_pct": 0.5},
             trading_session={"start": "09:15", "end": "15:00"},
         ),
-        "path": ["configured", "validated", "paper_trading", "ready_for_live", "live"],
+        "path": ["configured", "validated", "ready"],
     },
     {
         "name": "Pairs: RELIANCE / ONGC",
@@ -56,7 +56,7 @@ _DEMO: list[dict] = [
             position_sizing={"model": "notional", "notional": 200000},
             trading_session={"start": "09:30", "end": "15:00"},
         ),
-        "path": ["configured", "validated", "paper_trading", "ready_for_live", "live", "paused"],
+        "path": ["configured", "validated", "ready", "paused"],
     },
     {
         "name": "Overnight Gap Fade (draft)",

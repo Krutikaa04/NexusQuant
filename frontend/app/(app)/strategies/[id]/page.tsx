@@ -106,8 +106,8 @@ export default function StrategyDetailPage() {
               {data.available_transitions.map((to) => (
                 <button
                   key={to}
-                  className={`btn ${to === "retired" ? "btn-ghost" : "btn-primary"}`}
-                  style={to === "retired" ? { color: "var(--down)" } : undefined}
+                  className={`btn ${to === "archived" ? "btn-ghost" : "btn-primary"}`}
+                  style={to === "archived" ? { color: "var(--down)" } : undefined}
                   disabled={busy}
                   onClick={() => run(() => StrategyApi.transition(id, to))}
                 >

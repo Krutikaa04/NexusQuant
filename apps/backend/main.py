@@ -71,6 +71,19 @@ PLATFORM_SERVICES = [
      "summary": "Central entity: lifecycle, versioned configuration, health, audit trail."},
 ]
 
+# Explicit market-data provenance. In development the ONLY connected provider is the
+# synthetic MockNseVendor (a deterministic random walk seeded from base prices in seed.py),
+# so displayed index/quote values are SIMULATED and do not track real NSE levels. The
+# ingestion pipeline (validation → normalization → quality) is provider-agnostic, so a real
+# provider can be plugged in via the VendorAdapter port without downstream changes. This is
+# surfaced explicitly rather than presenting synthetic values as live market data.
+DATA_FEED = {
+    "provider": "MockNseVendor",
+    "kind": "synthetic",
+    "is_real_market_data": False,
+    "note": "Development feed — deterministic simulated prices, not live NSE quotes.",
+}
+
 
 def create_app() -> FastAPI:
     settings = Settings(
@@ -125,7 +138,7 @@ def create_app() -> FastAPI:
 
     @app.get("/api/system", tags=["backend"])
     async def system() -> dict:
-        return {"modules": MODULES, "services": PLATFORM_SERVICES}
+        return {"modules": MODULES, "services": PLATFORM_SERVICES, "data_feed": DATA_FEED}
 
     @app.get("/api/overview", tags=["backend"])
     async def overview(request: Request) -> dict:

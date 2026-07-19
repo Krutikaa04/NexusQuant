@@ -9,7 +9,7 @@ import { StatusBadge, Tag } from "@/components/strategies/bits";
 import { IconStrategy } from "@/components/icons";
 import { useApi } from "@/lib/useApi";
 import { fmtTime, titleCase } from "@/lib/format";
-import { healthTone, type DashboardSummary, type StrategySummary } from "@/lib/strategies";
+import { readiness, type DashboardSummary, type StrategySummary } from "@/lib/strategies";
 
 export default function StrategiesPage() {
   const router = useRouter();
@@ -48,18 +48,12 @@ export default function StrategiesPage() {
       />
 
       {/* Stat row */}
-      <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", marginBottom: 18 }}>
+      <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", marginBottom: 18 }}>
         <StatCard label="Total strategies" value={s ? s.total : "—"} delay={0} />
-        <StatCard label="Live" value={s ? s.active : "—"} tone={s && s.active > 0 ? "up" : "neutral"} delay={60} />
+        <StatCard label="Active" value={s ? s.active : "—"} sub="Not archived" tone={s && s.active > 0 ? "up" : "neutral"} delay={60} />
         <StatCard label="Draft" value={s ? s.draft : "—"} delay={120} />
-        <StatCard label="Paused" value={s ? s.paused : "—"} tone={s && s.paused > 0 ? "down" : "neutral"} delay={180} />
-        <StatCard
-          label="Avg health"
-          value={s && s.health.avg_score != null ? `${(s.health.avg_score * 100).toFixed(0)}%` : "—"}
-          sub={s ? `${s.health.trading_allowed} trading-allowed` : ""}
-          tone={s ? healthTone(s.health.avg_score) : "neutral"}
-          delay={240}
-        />
+        <StatCard label="Execution-ready" value={s ? s.ready : "—"} tone={s && s.ready > 0 ? "up" : "neutral"} delay={180} />
+        <StatCard label="Archived" value={s ? s.archived : "—"} tone="neutral" delay={240} />
       </div>
 
       {/* Table */}
@@ -83,9 +77,9 @@ export default function StrategiesPage() {
                   <th>Strategy</th>
                   <th>Category</th>
                   <th>Status</th>
+                  <th>Readiness</th>
                   <th className="num">Version</th>
-                  <th className="num">Health</th>
-                  <th>Updated</th>
+                  <th>Last modified</th>
                 </tr>
               </thead>
               <tbody>
@@ -103,12 +97,13 @@ export default function StrategiesPage() {
                     </td>
                     <td><span className="muted" style={{ fontSize: 12.5 }}>{titleCase(r.category)}</span></td>
                     <td><StatusBadge status={r.status} /></td>
-                    <td className="num">v{r.version}</td>
-                    <td className="num">
-                      {r.health?.health_score != null
-                        ? `${(r.health.health_score * 100).toFixed(0)}%`
-                        : <span className="dim">—</span>}
+                    <td>
+                      {(() => {
+                        const rd = readiness(r.status);
+                        return <span className={`pill ${rd.tone}`} style={{ padding: "1px 9px" }}>{rd.label}</span>;
+                      })()}
                     </td>
+                    <td className="num">v{r.version}</td>
                     <td><span className="dim mono" style={{ fontSize: 11.5 }}>{r.updated_at ? fmtTime(r.updated_at) : "—"}</span></td>
                   </tr>
                 ))}

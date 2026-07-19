@@ -87,15 +87,22 @@ async def test_legal_transition_and_audit(container):
 async def test_illegal_transition_rejected(container):
     s = await _create(container)
     with pytest.raises(IllegalTransition):
-        await container.strategies.transition(s["id"], to_status="live", actor="tester")
+        await container.strategies.transition(s["id"], to_status="ready", actor="tester")
 
 
-async def test_retired_is_immutable(container):
+async def test_archived_is_immutable(container):
     s = await _create(container)
-    for st in ("configured", "validated", "retired"):
+    for st in ("configured", "validated", "archived"):
         await container.strategies.transition(s["id"], to_status=st, actor="tester")
     with pytest.raises(ImmutableStrategy):
         await container.strategies.update_strategy(s["id"], description="x", actor="tester")
+
+
+async def test_archive_helper_transitions_to_archived(container):
+    s = await _create(container)
+    archived = await container.strategies.archive(s["id"], actor="tester")
+    assert archived["status"] == "archived"
+    assert archived["is_terminal"] is True
 
 
 async def test_rollback_creates_new_version_from_old(container):
