@@ -26,6 +26,7 @@ from strategy_core.api.controller import router as strategy_router
 from strategy_core.config import Settings as StrategySettings
 from strategy_core.container import Container as StrategyContainer
 
+from dhan_feed import DhanConfig, DhanMarketFeed
 from overview import build_overview
 from seed import LiveFeed, seed, use_demo_regime_classifier
 from seed_strategies import seed_strategies
@@ -71,18 +72,25 @@ PLATFORM_SERVICES = [
      "summary": "Central entity: lifecycle, versioned configuration, health, audit trail."},
 ]
 
-# Explicit market-data provenance. In development the ONLY connected provider is the
-# synthetic MockNseVendor (a deterministic random walk seeded from base prices in seed.py),
-# so displayed index/quote values are SIMULATED and do not track real NSE levels. The
-# ingestion pipeline (validation → normalization → quality) is provider-agnostic, so a real
-# provider can be plugged in via the VendorAdapter port without downstream changes. This is
-# surfaced explicitly rather than presenting synthetic values as live market data.
-DATA_FEED = {
-    "provider": "MockNseVendor",
-    "kind": "synthetic",
-    "is_real_market_data": False,
-    "note": "Development feed — deterministic simulated prices, not live NSE quotes.",
-}
+# Explicit market-data provenance. If DHAN_CLIENT_ID + DHAN_ACCESS_TOKEN are set, the app
+# uses the real DhanHQ feed (live NSE quotes during market hours); otherwise it falls back to
+# the synthetic MockNseVendor (deterministic random walk seeded from base prices in seed.py),
+# whose values are SIMULATED and do not track real NSE levels. Either way provenance is
+# surfaced explicitly rather than presenting synthetic values as if they were live.
+def _data_feed_provenance(dhan_enabled: bool) -> dict:
+    if dhan_enabled:
+        return {
+            "provider": "DhanHQ",
+            "kind": "live",
+            "is_real_market_data": True,
+            "note": "Real NSE data via DhanHQ v2. Live only during market hours (Mon–Fri 09:15–15:30 IST).",
+        }
+    return {
+        "provider": "MockNseVendor",
+        "kind": "synthetic",
+        "is_real_market_data": False,
+        "note": "Development feed — deterministic simulated prices, not live NSE quotes. Set DHAN_* to use real data.",
+    }
 
 
 def create_app() -> FastAPI:
@@ -95,6 +103,12 @@ def create_app() -> FastAPI:
     use_demo_regime_classifier(container)
     live = LiveFeed(container)
 
+    # Real market data if Dhan credentials are present; synthetic feed otherwise.
+    dhan_config = DhanConfig.from_env()
+    dhan_enabled = dhan_config is not None
+    data_feed = _data_feed_provenance(dhan_enabled)
+    dhan_feed = DhanMarketFeed(container, dhan_config) if dhan_enabled else None
+
     strategy_container = StrategyContainer.build(
         StrategySettings(
             STRATEGY_DATABASE_URL=f"sqlite+aiosqlite:///{STRATEGY_DB_PATH}",
@@ -106,13 +120,20 @@ def create_app() -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await container.startup()
-        await seed(container)
+        # With a real provider connected, register instruments but do NOT synthesize history.
+        await seed(container, backfill=not dhan_enabled)
         await strategy_container.startup()
         await seed_strategies(strategy_container)
-        if LIVE_FEED:
+        if dhan_feed is not None:
+            logger.info("market data: DhanHQ (real NSE feed)")
+            await dhan_feed.start()
+        elif LIVE_FEED:
+            logger.info("market data: synthetic MockNseVendor (set DHAN_* for real data)")
             await live.start()
         yield
-        if LIVE_FEED:
+        if dhan_feed is not None:
+            await dhan_feed.stop()
+        elif LIVE_FEED:
             await live.stop()
         await strategy_container.shutdown()
         await container.shutdown()
@@ -131,18 +152,25 @@ def create_app() -> FastAPI:
     )
     app.state.container = container
     app.state.strategy_container = strategy_container
+    app.state.data_feed = data_feed
 
     @app.get("/api/health", tags=["backend"])
     async def health() -> dict:
         return {"status": "ok", "service": "nexus-backend", "live_feed": LIVE_FEED}
 
     @app.get("/api/system", tags=["backend"])
-    async def system() -> dict:
-        return {"modules": MODULES, "services": PLATFORM_SERVICES, "data_feed": DATA_FEED}
+    async def system(request: Request) -> dict:
+        return {
+            "modules": MODULES,
+            "services": PLATFORM_SERVICES,
+            "data_feed": request.app.state.data_feed,
+        }
 
     @app.get("/api/overview", tags=["backend"])
     async def overview(request: Request) -> dict:
-        return await build_overview(request.app.state.container)
+        data = await build_overview(request.app.state.container)
+        data["data_feed"] = request.app.state.data_feed
+        return data
 
     # The full SPEC-004 surface (instruments, ticks, candles, quality, calendar,
     # corporate actions, regime, replay) and the /ws/{channel} streams.

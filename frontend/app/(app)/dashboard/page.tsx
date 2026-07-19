@@ -20,9 +20,15 @@ export default function DashboardPage() {
         title="Command Center"
         subtitle="Market intelligence across the tracked NSE universe."
         badge={
-          <span className="pill pill-warn" title="Development feed: deterministic simulated prices, not live NSE quotes.">
-            <span className="live-dot" />Simulated feed
-          </span>
+          data?.data_feed?.is_real_market_data ? (
+            <span className="pill pill-up" title={data.data_feed.note}>
+              <span className="live-dot" />Live · {data.data_feed.provider}
+            </span>
+          ) : (
+            <span className="pill pill-warn" title={data?.data_feed?.note ?? "Simulated development feed, not live NSE quotes."}>
+              <span className="live-dot" />Simulated feed
+            </span>
+          )
         }
         actions={
           <span className="pill mono" title="Last update">

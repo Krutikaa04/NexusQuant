@@ -16,8 +16,16 @@ export interface InstrumentSnapshot {
   candle_count: number;
 }
 
+export interface DataFeed {
+  provider: string;
+  kind: string;
+  is_real_market_data: boolean;
+  note: string;
+}
+
 export interface Overview {
   as_of: string;
+  data_feed?: DataFeed;
   session: {
     exchange: string;
     phase: string;

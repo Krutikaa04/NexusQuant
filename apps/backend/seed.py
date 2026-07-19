@@ -58,8 +58,13 @@ async def already_seeded(container: Container) -> bool:
     return len(await container.instruments.list()) > 0
 
 
-async def seed(container: Container) -> None:
-    """Register the universe and backfill history. Idempotent: skips if already seeded."""
+async def seed(container: Container, *, backfill: bool = True) -> None:
+    """Register the universe and (optionally) backfill synthetic history.
+
+    Idempotent: skips if already seeded. ``backfill=False`` registers instruments only and
+    generates NO synthetic ticks — used when a real market-data provider is connected, so
+    real quotes are never mixed with fabricated history.
+    """
     if await already_seeded(container):
         logger.info("universe already seeded; skipping backfill")
         return
@@ -76,6 +81,10 @@ async def seed(container: Container) -> None:
                 industry=industry,
             )
         )
+
+    if not backfill:
+        logger.info("real provider connected — skipping synthetic backfill")
+        return
 
     for i, (symbol, _n, segment, price, *_rest) in enumerate(UNIVERSE):
         count = INDEX_TICKS if segment is Segment.INDEX else EQUITY_TICKS
