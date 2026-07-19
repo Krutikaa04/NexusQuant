@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NexusQuant — Autonomous Algorithmic Trading OS",
+  title: "NexusQuant — AI-Powered Algorithmic Trading & Decision Intelligence",
   description:
-    "Institutional-grade autonomous algorithmic trading platform for the Indian equity market. The Strategy is the central entity; every trade is governed, explainable, and reproducible.",
+    "AI-powered algorithmic trading and decision intelligence platform for Indian equity traders. Market intelligence, strategy management, backtesting, paper trading and explainable recommendations — with the trader in control.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

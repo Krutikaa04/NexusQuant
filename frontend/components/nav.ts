@@ -2,13 +2,13 @@ import type { ComponentType, SVGProps } from "react";
 import {
   IconAnalytics,
   IconCopilot,
+  IconDecision,
   IconExecution,
   IconGrid,
   IconMarket,
-  IconOrders,
+  IconPaper,
   IconPortfolio,
   IconSettings,
-  IconShield,
   IconStrategy,
 } from "./icons";
 
@@ -25,8 +25,8 @@ export interface NavSection {
   items: NavItem[];
 }
 
-// Autonomous Algorithmic Trading OS navigation. The Strategy is the central entity;
-// every capital-facing module operates on strategies and their allocations.
+// AI-powered Algorithmic Trading & Decision Intelligence Platform. The trader stays in
+// control; the Strategy Studio is the core workspace and Decision Intelligence assists.
 export const NAV: NavSection[] = [
   {
     title: "Overview",
@@ -38,17 +38,22 @@ export const NAV: NavSection[] = [
   {
     title: "Trading",
     items: [
-      { href: "/strategies", label: "Strategies", icon: IconStrategy, status: "soon", spec: "SPEC-008" },
-      { href: "/portfolio", label: "Portfolio", icon: IconPortfolio, status: "soon", spec: "SPEC-011" },
-      { href: "/orders", label: "Orders", icon: IconOrders, status: "soon", spec: "SPEC-013" },
-      { href: "/execution", label: "Execution", icon: IconExecution, status: "soon", spec: "SPEC-013" },
+      { href: "/strategies", label: "Strategy Studio", icon: IconStrategy, status: "live", spec: "SPEC-008" },
+      { href: "/backtesting", label: "Backtesting", icon: IconAnalytics, status: "soon", spec: "SPEC-009" },
+      { href: "/paper", label: "Paper Trading", icon: IconPaper, status: "soon", spec: "SPEC-013" },
     ],
   },
   {
-    title: "Control",
+    title: "Intelligence",
     items: [
-      { href: "/risk", label: "Risk", icon: IconShield, status: "soon", spec: "SPEC-010" },
-      { href: "/analytics", label: "Analytics", icon: IconAnalytics, status: "soon", spec: "SPEC-009" },
+      { href: "/decision", label: "Decision Intelligence", icon: IconDecision, status: "soon", spec: "SPEC-010" },
+      { href: "/portfolio", label: "Portfolio", icon: IconPortfolio, status: "soon", spec: "SPEC-011" },
+    ],
+  },
+  {
+    title: "Platform",
+    items: [
+      { href: "/execution", label: "Execution Center", icon: IconExecution, status: "soon", spec: "SPEC-013" },
       { href: "/copilot", label: "AI Copilot", icon: IconCopilot, status: "soon", spec: "SPEC-012" },
       { href: "/settings", label: "Settings", icon: IconSettings, status: "live" },
     ],

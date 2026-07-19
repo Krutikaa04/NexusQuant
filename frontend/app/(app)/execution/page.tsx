@@ -4,18 +4,18 @@ import { IconExecution } from "@/components/icons";
 export default function Page() {
   return (
     <ComingSoon
-      title="Execution"
+      title="Execution Center"
       spec="SPEC-013"
       icon={<IconExecution width={24} height={24} />}
-      tagline="Where approved orders become fills."
-      description="Execution owns broker abstraction, paper and live trading, execution analytics, and reconciliation. It takes risk-approved orders and works them in the market, measuring slippage and fill quality and reconciling every position back to the broker of record. Execution is deliberately downstream: it acts only on orders that already passed the risk gate."
+      tagline="Optional automated execution — always trader-approved."
+      description="The Execution Center owns broker abstraction, order routing, execution analytics, and reconciliation. It works trader-approved orders in the market, measuring slippage and fill quality and reconciling every position back to the broker of record. Automated execution is optional and the trader stays in control — nothing irreversible happens without explicit approval."
       capabilities={[
-        "Order management system",
         "Broker adapter abstraction",
-        "Paper trading",
-        "Live execution",
+        "Order routing & management",
+        "Optional automated execution",
         "Execution quality analytics",
         "Position reconciliation",
+        "Trader-approved, human-in-the-loop",
       ]}
     />
   );

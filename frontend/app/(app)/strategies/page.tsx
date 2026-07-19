@@ -25,7 +25,7 @@ export default function StrategiesPage() {
   if (list.error && !list.data) {
     return (
       <>
-        <PageHeader title="Strategies" />
+        <PageHeader title="Strategy Studio" />
         <ErrorState message={list.error} onRetry={refresh} />
       </>
     );
@@ -37,8 +37,8 @@ export default function StrategiesPage() {
   return (
     <div>
       <PageHeader
-        title="Strategies"
-        subtitle="The central asset of the platform — lifecycle, configuration, versioning and health."
+        title="Strategy Studio"
+        subtitle="The core workspace — create, configure, version and manage the lifecycle of every strategy."
         badge={<span className="pill pill-info"><span className="dot" />Strategy Core</span>}
         actions={
           <button className="btn btn-primary" onClick={() => setOpen(true)}>

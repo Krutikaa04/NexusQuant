@@ -3,14 +3,14 @@ import { BrandLockup } from "@/components/Brand";
 import { IconArrowRight, IconMarket, IconPulse, IconShield, IconStrategy } from "@/components/icons";
 
 const PILLARS = [
-  { icon: <IconStrategy />, title: "The strategy is the product", body: "Every workflow begins with a strategy. The platform decides autonomously which strategies are eligible, funded, paused, or retired — under governance." },
-  { icon: <IconShield />, title: "Governed autonomy", body: "No order reaches a broker without passing risk. Every allocation, pause, and retirement is explainable and captured in an immutable audit trail." },
-  { icon: <IconPulse />, title: "Deterministic & reproducible", body: "Validated market data and event-sourced pipelines mean any decision — or backtest — can be replayed exactly." },
+  { icon: <IconStrategy />, title: "You build the strategy", body: "The Strategy Studio is your workspace — create, configure, version and validate strategies, then take them from backtest to paper to live on your terms." },
+  { icon: <IconShield />, title: "The trader stays in control", body: "AI analyzes, scores confidence and highlights risk — but never makes an irreversible trade without your explicit approval. Human-in-the-loop by design." },
+  { icon: <IconPulse />, title: "Explainable & reproducible", body: "Validated market data and event-sourced pipelines mean every recommendation, backtest and fill can be explained and replayed exactly." },
 ];
 
 const MODULES = [
-  "Markets", "Strategies", "Portfolio", "Orders",
-  "Execution", "Risk", "Analytics", "AI Copilot",
+  "Markets", "Strategy Studio", "Backtesting", "Paper Trading",
+  "Decision Intelligence", "Portfolio", "Execution Center", "AI Copilot",
 ];
 
 export default function Landing() {
@@ -30,18 +30,18 @@ export default function Landing() {
       {/* Hero */}
       <section style={{ maxWidth: 1000, margin: "0 auto", padding: "80px 32px 60px", textAlign: "center" }}>
         <div className="pill pill-info fade-up" style={{ marginBottom: 24 }}>
-          <span className="dot" />Indian Equity Markets · Institutional Grade
+          <span className="dot" />Indian Equity Markets · AI-Powered
         </div>
         <h1 className="fade-up" style={{ fontSize: 56, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 800, animationDelay: "40ms", maxWidth: 820, margin: "0 auto" }}>
-          The autonomous trading platform,{" "}
+          Algorithmic trading &amp; decision intelligence,{" "}
           <span style={{ background: "linear-gradient(120deg,var(--accent),var(--accent-2))", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-            engineered like an institution.
+            with you in control.
           </span>
         </h1>
         <p className="muted fade-up" style={{ fontSize: 18, lineHeight: 1.6, maxWidth: 640, margin: "24px auto 0", animationDelay: "90ms" }}>
-          NexusQuant is an institutional-grade autonomous algorithmic trading operating system.
-          Strategies are the central entity — the platform decides which to fund, pause, or retire,
-          and every order is governed, explainable, and reproducible before it reaches the market.
+          NexusQuant is an AI-powered algorithmic trading platform for Indian equity traders. It
+          delivers reliable market intelligence, strategy management, backtesting, paper trading and
+          explainable decision support — the AI analyzes and recommends, while you make the call.
         </p>
         <div className="row fade-up" style={{ justifyContent: "center", gap: 12, marginTop: 36, animationDelay: "140ms" }}>
           <Link href="/dashboard" className="btn btn-primary" style={{ padding: "12px 22px", fontSize: 14.5 }}>
@@ -73,10 +73,10 @@ export default function Landing() {
         <div className="panel panel-pad fade-up">
           <div className="row between" style={{ marginBottom: 18, flexWrap: "wrap", gap: 8 }}>
             <div>
-              <div className="card-title">Strategy-centric architecture</div>
-              <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>Bounded contexts, event-driven, one governed path from strategy to execution.</div>
+              <div className="card-title">One trading workflow, end to end</div>
+              <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>Bounded contexts, event-driven — from market data and strategy to backtest, paper and execution.</div>
             </div>
-            <span className="pill pill-up"><span className="dot" />Markets live</span>
+            <span className="pill pill-up"><span className="dot" />Markets · Strategy Studio live</span>
           </div>
           <div className="row" style={{ flexWrap: "wrap", gap: 10 }}>
             {MODULES.map((l, i) => (

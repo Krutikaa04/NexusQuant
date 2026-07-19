@@ -85,7 +85,7 @@ export function Sidebar() {
             <span className="pill pill-up" style={{ padding: "1px 8px" }}><span className="dot" />v0.1</span>
           </div>
           <div className="dim" style={{ fontSize: 11.5, lineHeight: 1.5 }}>
-            Markets + Strategy Core live.
+            Markets + Strategy Studio live.
           </div>
         </div>
       </div>

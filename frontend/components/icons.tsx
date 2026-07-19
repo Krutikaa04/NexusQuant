@@ -21,6 +21,9 @@ export const IconStrategy = (p: SVGProps<SVGSVGElement>) => (
 export const IconOrders = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><path d="M4 6h16M4 12h16M4 18h10" /><path d="M17 15l2 2 3-3.5" /></svg>
 );
+export const IconPaper = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><path d="M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" /><path d="M14 2v6h6M9 13h6M9 17h6" /></svg>
+);
 export const IconAlpha = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}><path d="M12 2v20M2 12h20" /><circle cx="12" cy="12" r="4" /></svg>
 );
